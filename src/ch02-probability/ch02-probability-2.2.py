@@ -16,7 +16,7 @@ def estrategia_escolha(noites_totais, noites_treino, qualidades):
     for i in range(noites_treino, noites_totais):
         if qualidades[i] > max_treino:
             # Verifica se esta é a melhor noite de todas
-            return qualidades[i] == max(qualidades)
+            return i == np.argmax(qualidades)
     
     # Se não encontrou nenhuma melhor, retorna False
     return False
@@ -60,13 +60,13 @@ print("\n" + "=" * 70)
 print("PARTE 2: Encontrando a fração ótima de treino")
 print("=" * 70)
 
-# Testa diferentes frações de treino
-fracoes_treino = np.linspace(0.1, 0.9, 30)
+# Testa diferentes frações de treino com MAIS PONTOS para curvas suaves
+fracoes_treino = np.linspace(0.1, 0.9, 150)  # Aumentado de 30 para 150 pontos
 taxas_sucesso = []
 
 print("\nTestando diferentes frações de treino...")
 for fracao in fracoes_treino:
-    noites_treino_teste = int(noites_totais * fracao)
+    noites_treino_teste = max(1, min(int(round(noites_totais * fracao)), noites_totais - 1))
     if noites_treino_teste == 0:
         noites_treino_teste = 1
     if noites_treino_teste >= noites_totais:
@@ -101,7 +101,7 @@ ax1.grid(True, alpha=0.3)
 ax1.legend()
 
 # Gráfico 2: Comparação para diferentes tamanhos de amostra
-tamanhos = [10, 20, 50, 100]
+tamanhos = [10, 100, 1000, 5000]
 cores = ['blue', 'green', 'orange', 'red']
 
 for tamanho, cor in zip(tamanhos, cores):
@@ -109,7 +109,7 @@ for tamanho, cor in zip(tamanhos, cores):
     taxas = []
     
     for fracao in fracoes:
-        n_treino = int(tamanho * fracao)
+        n_treino = max(1, min(int(round(tamanho * fracao)), tamanho - 1))
         if n_treino == 0:
             n_treino = 1
         if n_treino >= tamanho:
@@ -118,12 +118,12 @@ for tamanho, cor in zip(tamanhos, cores):
         taxa = simular_estrategia(tamanho, n_treino, 20000)
         taxas.append(taxa)
     
-    ax2.plot(fracoes, taxas, color=cor, linewidth=2, label=f'n = {tamanho}')
+    ax2.plot(fracoes, taxas, color=cor, linewidth=2, label=f'{tamanho} noites')
 
 ax2.axvline(1/np.e, color='black', linestyle='--', linewidth=2, label=f'1/e ≈ {1/np.e:.3f}')
 ax2.set_xlabel('Fração de treino', fontsize=11)
 ax2.set_ylabel('Probabilidade de sucesso', fontsize=11)
-ax2.set_title('Convergência para 1/e (diferentes tamanhos)', fontsize=12, fontweight='bold')
+ax2.set_title('Convergência para 1/e (diferentes noites)', fontsize=12, fontweight='bold')
 ax2.grid(True, alpha=0.3)
 ax2.legend()
 
